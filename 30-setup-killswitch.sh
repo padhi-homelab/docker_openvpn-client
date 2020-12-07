@@ -36,13 +36,21 @@ echo "  Using:"
 echo "$remotes" | while IFS= read line; do
     domain=$(echo "$line" | cut -d " " -f 1)
     port=$(echo "$line" | cut -d " " -f 2)
+    [ "$port" = "${port#\#}" ] || port=""
     proto=$(echo "$line" | cut -d " " -f 3 | cut -c1-3)
-    sed -i "/$line/d" $CONFIG_FILE_NAME
-    for ip in $(dig -4 +short $domain); do
-        echo "    $domain (IP:$ip PORT:$port)"
-        iptables -A OUTPUT -o eth0 -d $ip -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
-        echo "remote $ip $port $proto" >> $CONFIG_FILE_NAME
-    done
+    [ "$proto" = "${proto#\#}" ] || proto=""
+
+    if ip route get $domain > /dev/null 2>&1; then
+        echo "    $domain PORT:$port"
+        iptables -A OUTPUT -o eth0 -d $domain -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
+    else
+        sed -i "/$line/d" $CONFIG_FILE_NAME
+        for ip in $(dig -4 +short $domain); do
+            echo "    $domain (IP:$ip PORT:$port)"
+            iptables -A OUTPUT -o eth0 -d $ip -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
+            echo "remote $ip $port $proto" >> $CONFIG_FILE_NAME
+        done
+    fi
 done
 
 echo "Allowing connections over VPN interface..."
