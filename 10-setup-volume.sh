@@ -3,6 +3,7 @@
 cp -r /config /internal-config
 
 sed -i \
+    -e 's/#.*$//' \
     -e '/up /c up \/etc\/openvpn\/up.sh' \
     -e '/down /c down \/etc\/openvpn\/down.sh' \
     -e 's/^proto udp$/proto udp4/' \

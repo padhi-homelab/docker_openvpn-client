@@ -2,6 +2,7 @@
 
 <a href='https://microbadger.com/images/padhihomelab/openvpn-client'><img src='https://img.shields.io/microbadger/layers/padhihomelab/openvpn-client/latest?logo=docker&logoWidth=24&style=for-the-badge'></img></a>
 <a href='https://hub.docker.com/r/padhihomelab/openvpn-client'><img src='https://img.shields.io/docker/image-size/padhihomelab/openvpn-client/latest?label=size%20%5Blatest%5D&logo=docker&logoWidth=24&style=for-the-badge'></img></a>
+<a href='https://hub.docker.com/r/padhihomelab/openvpn-client'><img src='https://img.shields.io/docker/image-size/padhihomelab/openvpn-client/testing?label=size%20%5Btesting%5D&logo=docker&logoWidth=24&style=for-the-badge'></img></a>
 
 A multiarch [OpenVPN] Docker image, based on [Alpine Linux].
 

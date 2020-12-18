@@ -44,7 +44,7 @@ echo "$remotes" | while IFS= read line; do
         echo "    $domain PORT:$port"
         iptables -A OUTPUT -o eth0 -d $domain -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
     else
-        sed -i "/$line/d" $CONFIG_FILE_NAME
+        grep -v "$line" $CONFIG_FILE_NAME > temp && mv temp $CONFIG_FILE_NAME
         for ip in $(dig -4 +short $domain); do
             echo "    $domain (IP:$ip PORT:$port)"
             iptables -A OUTPUT -o eth0 -d $ip -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
