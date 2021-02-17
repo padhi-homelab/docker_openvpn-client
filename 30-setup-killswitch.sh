@@ -63,13 +63,14 @@ if [ ! -z $FORWARDED_PORTS ]; then
         if $(echo $port | grep -Eq '^[0-9]+$') && [ $port -ge 1024 ] && [ $port -le 65535 ]; then
             iptables -A INPUT -i tun0 -p tcp --dport $port -j ACCEPT
             iptables -A INPUT -i tun0 -p udp --dport $port -j ACCEPT
+            echo "+ port $port"
         else
-            echo "WARNING: $port not a valid port. Ignoring."
+            echo "- WARNING: $port is not a valid port. Ignoring."
         fi
     done
 fi
 
-echo "Preventing anything else..."
+echo "Preventing everything else..."
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP

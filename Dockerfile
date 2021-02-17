@@ -15,7 +15,7 @@ COPY 30-setup-killswitch.sh     /etc/docker-entrypoint.d/
 RUN chmod +x /etc/docker-entrypoint.d/* \
  && apk add --no-cache --update \
             bind-tools \
-            openvpn=2.4.9-r0
+            openvpn=2.4.10-r0
 
 
 VOLUME [ "/config" ]
