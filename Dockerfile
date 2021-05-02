@@ -1,4 +1,4 @@
-FROM padhihomelab/alpine-base:3.13_0.19.0_0.2
+FROM padhihomelab/alpine-base:3.13.5_0.19.0_0.2
 
 
 ENV ENTRYPOINT_RUN_AS_ROOT=1
@@ -15,7 +15,7 @@ COPY 30-setup-killswitch.sh     /etc/docker-entrypoint.d/
 RUN chmod +x /etc/docker-entrypoint.d/* \
  && apk add --no-cache --update \
             bind-tools \
-            openvpn=2.5.0-r1
+            openvpn=2.5.1-r0
 
 
 VOLUME [ "/config" ]
