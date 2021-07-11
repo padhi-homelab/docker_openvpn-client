@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cp -r /config /internal-config
+mv /sockd.conf /internal-config/
 
 sed -i \
     -e 's/#.*$//' \

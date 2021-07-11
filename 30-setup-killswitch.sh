@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # # # # 
 #
 # Mostly borrowed from:
@@ -12,7 +14,7 @@
 
 cd /internal-config
 
-local_subnet=$(ip r | grep -v 'default via' | grep eth0 | tail -n 1 | cut -d " " -f 1)
+local_subnet=$(ip r | grep -v 'default via' | grep eth0 | tail -n 1 | awk '{ print $1 }')
 
 echo "Creating VPN kill switch and local routes..."
 
@@ -28,25 +30,25 @@ iptables -A INPUT -s $local_subnet -j ACCEPT
 iptables -A OUTPUT -d $local_subnet -j ACCEPT
 
 echo "Allowing remote servers in configuration file."
-remote_port=$(grep "port " $CONFIG_FILE_NAME | cut -d " " -f 2)
-remote_proto=$(grep "proto " $CONFIG_FILE_NAME | cut -d " " -f 2 | cut -c1-3)
-remotes=$(grep "remote " $CONFIG_FILE_NAME | cut -d " " -f 2-4)
+remote_port=$(grep "port " $CONFIG_FILE_NAME | awk '{ print $2 }')
+remote_proto=$(grep "proto " $CONFIG_FILE_NAME | awk '{ print $2 }')
+remotes=$(grep "remote " $CONFIG_FILE_NAME | awk '{ print $2,$3,$4 }')
 
 echo "  Using:"
 echo "$remotes" | while IFS= read line; do
-    domain=$(echo "$line" | cut -d " " -f 1)
-    port=$(echo "$line" | cut -d " " -f 2)
+    domain=$(echo "$line" | awk '{ print $1 }')
+    port=$(echo "$line" | awk '{ print $2 }')
     [ "$port" = "${port#\#}" ] || port=""
-    proto=$(echo "$line" | cut -d " " -f 3 | cut -c1-3)
+    proto=$(echo "$line" | awk '{ print $3 }')
     [ "$proto" = "${proto#\#}" ] || proto=""
 
     if ip route get $domain > /dev/null 2>&1; then
-        echo "    $domain PORT:$port"
+        echo "    $domain PORT:${port:-$remote_port} ${proto:-$remote_proto}"
         iptables -A OUTPUT -o eth0 -d $domain -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
     else
         grep -v "$line" $CONFIG_FILE_NAME > temp && mv temp $CONFIG_FILE_NAME
         for ip in $(dig -4 +short $domain); do
-            echo "    $domain (IP:$ip PORT:$port)"
+            echo "    $domain (IP:$ip PORT:${port:-$remote_port} ${proto:-$remote_proto})"
             iptables -A OUTPUT -o eth0 -d $ip -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
             echo "remote $ip $port $proto" >> $CONFIG_FILE_NAME
         done
