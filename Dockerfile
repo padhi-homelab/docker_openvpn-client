@@ -4,6 +4,7 @@ FROM padhihomelab/alpine-base:3.14.0_0.19.0_0.2
 ENV ENTRYPOINT_RUN_AS_ROOT=1
 
 ENV CONFIG_FILE_NAME="client.conf"
+ENV ENABLE_IPv6=0
 ENV FORWARDED_PORTS=""
 
 
@@ -20,6 +21,7 @@ RUN chmod +x /etc/docker-entrypoint.d/* \
  && apk add --no-cache --update \
             bind-tools \
             dante-server \
+            ip6tables \
             openvpn=2.5.2-r0
 
 
