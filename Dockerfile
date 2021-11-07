@@ -1,4 +1,4 @@
-FROM padhihomelab/alpine-base:3.14.0_0.19.0_0.2
+FROM padhihomelab/alpine-base:3.14.2_0.19.0_0.2
 
 
 ENV ENTRYPOINT_RUN_AS_ROOT=1
@@ -8,16 +8,15 @@ ENV ENABLE_IPv6=0
 ENV FORWARDED_PORTS=""
 
 
-COPY 10-setup-volume.sh         /etc/docker-entrypoint.d/
-COPY 20-setup-dev-tun.sh        /etc/docker-entrypoint.d/
-COPY 30-setup-killswitch.sh     /etc/docker-entrypoint.d/
-COPY 40-setup-proxy-auth.sh     /etc/docker-entrypoint.d/
 COPY start.sh                   /usr/local/bin/start-vpn
 COPY sockd.conf                 /
 
+COPY entrypoint-scripts \
+     /etc/docker-entrypoint.d/99-extra-scripts
 
-RUN chmod +x /etc/docker-entrypoint.d/* \
- && chmod +x /usr/local/bin/start-vpn \
+
+RUN chmod +x /usr/local/bin/start-vpn \
+             /etc/docker-entrypoint.d/99-extra-scripts/*.sh \
  && apk add --no-cache --update \
             bind-tools \
             dante-server \

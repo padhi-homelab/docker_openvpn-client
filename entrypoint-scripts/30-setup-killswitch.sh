@@ -41,6 +41,7 @@ fi
 echo "Allowing remote servers in configuration file."
 remote_port=$(grep "port " $CONFIG_FILE_NAME | awk '{ print $2 }')
 remote_proto=$(grep "proto " $CONFIG_FILE_NAME | awk '{ print $2 }')
+remote_proto="${remote_proto%-client}"
 remotes=$(grep "remote " $CONFIG_FILE_NAME | awk '{ print $2,$3,$4 }')
 
 echo "  Using:"
