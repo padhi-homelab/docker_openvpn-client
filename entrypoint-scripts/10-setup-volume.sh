@@ -15,7 +15,7 @@ echo 'up /etc/openvpn/up.sh' >> /internal-config/$CONFIG_FILE_NAME
 echo 'down /etc/openvpn/down.sh' >> /internal-config/$CONFIG_FILE_NAME
 
 if [ -z "${ENTRYPOINT_RUN_AS_ROOT:-}" ]; then
-    chown -R ${DOCKER_USER}:${DOCKER_USER} /internal-config
+    chown -R ${DOCKER_USER}:${DOCKER_GROUP} /internal-config
 fi
 
 chmod og-rwx /internal-config/*

@@ -17,8 +17,8 @@ cd /internal-config
 echo "Creating VPN kill switch and local routes..."
 
 echo "Allowing established and related connections."
-iptables -A INPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+[ $ENABLE_IPv6 -eq 1 ] && ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 echo "Allowing loopback connections."
 iptables -A INPUT -i lo -j ACCEPT
@@ -90,7 +90,7 @@ iptables -A OUTPUT -o tun0 -j ACCEPT
 [ $ENABLE_IPv6 -eq 1 ] && ip6tables -A INPUT -i tun0 -j ACCEPT
 [ $ENABLE_IPv6 -eq 1 ] && ip6tables -A OUTPUT -o tun0 -j ACCEPT
 
-echo "Allowing connections over VPN interface to forwarded ports."
+echo "Opening up forwarded ports."
 if [ ! -z $FORWARDED_PORTS ]; then
     for port in ${FORWARDED_PORTS//,/ }; do
         if $(echo $port | grep -Eq '^[0-9]+$') && [ $port -ge 1024 ] && [ $port -le 65535 ]; then
@@ -105,7 +105,7 @@ if [ ! -z $FORWARDED_PORTS ]; then
     done
 fi
 
-echo "Preventing everything else."
+echo "Blocking everything else."
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP

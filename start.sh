@@ -6,7 +6,8 @@ fi
 
 openvpn --client \
         --auth-nocache \
-        --connect-retry-max 10 \
+        --auth-retry nointeract \
+        --connect-retry-max 32 \
         $EXTRA_FLAGS \
         --up-restart \
         --cd /internal-config \

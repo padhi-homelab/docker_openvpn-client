@@ -5,17 +5,16 @@
 
 A multiarch [OpenVPN] Docker image, based on [Alpine Linux].
 
-|        386         |       amd64        |       arm/v6       |       arm/v7       |       arm64        |      ppc64le       |       s390x        |
-| :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+|        386         |       amd64        |       arm/v6       |       arm/v7       |       arm64        |      ppc64le       |          risv64          |       s390x        |
+| :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------: | :----------------: |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_check_mark: |
 
 
 
 ## Usage
 
 ```
-docker run --rm --detach \
-           --name vpn_container
+docker run --name vpn_container
            --cap-add=NET_ADMIN \
            -e CONFIG_FILE_NAME=client.conf \
            -v /path/to/config:/config \
@@ -24,10 +23,18 @@ docker run --rm --detach \
 
 Starts a container running an `openvpn` client with the provided client configuration.
 <br>
-To route traffic from other containers via this container, use `--net=container:vpn_container` with `docker run`.
+To route traffic from other containers via this container,
+use `--net=container:vpn_container` with `docker run` when creating those containers:
 
-_<More details to be added soon>_
+```
+docker run --net=container:vpn_container <target_image>
+```
+
+### (Optional) SOCKS5 Proxy
+
+This image also contains a [Dante] server to optionally start
 
 
 [Alpine Linux]: https://alpinelinux.org/
+[Dante]:        https://www.inet.no/dante/
 [OpenVPN]:      https://github.com/OpenVPN/openvpn
