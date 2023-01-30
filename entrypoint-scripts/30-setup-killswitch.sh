@@ -39,49 +39,39 @@ if [ $ENABLE_IPv6 -eq 1 ]; then
 fi
 
 echo "Allowing remote servers in configuration file."
-remote_port=$(grep "port " $CONFIG_FILE_NAME | awk '{ print $2 }')
-remote_proto=$(grep "proto " $CONFIG_FILE_NAME | awk '{ print $2 }')
-remote_proto="${remote_proto%-client}"
-remotes=$(grep "remote " $CONFIG_FILE_NAME | awk '{ print $2,$3,$4 }')
+global_port=$(grep "^port " $CONFIG_FILE_NAME | awk '{ print $2 }')
+global_proto=$(grep "^proto " $CONFIG_FILE_NAME | awk '{ print $2 }')
+remotes=$(grep "^remote " $CONFIG_FILE_NAME | awk '{ print $2,$3,$4 }')
 
 echo "  Using:"
-echo $remotes | while IFS= read line; do
-    domain=$(echo "$line" | awk '{ print $1 }')
-    port=$(echo "$line" | awk '{ print $2 }')
-    [ "$port" = "${port#\#}" ] || port=""
-    proto=$(echo "$line" | awk '{ print $3 }')
-    [ "$proto" = "${proto#\#}" ] || proto=""
+while IFS= read -r line ; do
+    IFS=' ' read -ra remote <<< "$line"
+    domain=${remote[0]}
+    port=${remote[1]:-${global_port:-1194}}
+    proto=${remote[2]:-${global_proto:-udp}}
 
     if ip route get $domain > /dev/null 2>&1; then
-        echo "    $domain PORT:${port:-$remote_port} ${proto:-$remote_proto}"
-        iptables -A OUTPUT -o eth0 -d $domain -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
+        echo "    $domain PORT:$port $proto"
+        iptables -A OUTPUT -o eth0 -d $domain -p $proto --dport $port -j ACCEPT
     elif [ $ENABLE_IPv6 -eq 1 ] && ip -6 route get $domain > /dev/null 2>&1; then
-        echo "    $domain PORT:${port:-$remote_port} ${proto:-$remote_proto}"
-        ip6tables -A OUTPUT -o eth0 -d $domain -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
+        echo "    $domain PORT:$port $proto"
+        ip6tables -A OUTPUT -o eth0 -d $domain -p $proto --dport $port -j ACCEPT
     else
-        grep -v "$line" $CONFIG_FILE_NAME > temp && mv temp $CONFIG_FILE_NAME
-
-        IPv4s=$(dig -4 +short "$domain")
-        if [ $? -eq 0 ]; then
-            for ip in $IPv4s; do
-                echo "    $domain (IP4:$ip PORT:${port:-$remote_port} ${proto:-$remote_proto})"
-                iptables -A OUTPUT -o eth0 -d $ip -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
-                echo "remote $ip $port $proto" >> $CONFIG_FILE_NAME
-            done
-        fi
+        for ip in $(dig -4 +short "$domain"); do
+            echo "    $domain (IP4:$ip PORT:$port $proto)"
+            iptables -A OUTPUT -o eth0 -d $ip -p $proto --dport $port -j ACCEPT
+            echo "$ip $domain" >> /etc/hosts
+        done
 
         if [ $ENABLE_IPv6 -eq 1 ]; then
-            IPv6s=$(dig -6 +short "$domain")
-            if [ $? -eq 0 ]; then
-                for ip in $IPv6s; do
-                    echo "    $domain (IP6:$ip PORT:${port:-$remote_port} ${proto:-$remote_proto})"
-                    ip6tables -A OUTPUT -o eth0 -d $ip -p ${proto:-$remote_proto} --dport ${port:-$remote_port} -j ACCEPT
-                    echo "remote $ip $port $proto" >> $CONFIG_FILE_NAME
-                done
-            fi
+            for ip in $(dig -6 +short "$domain"); do
+                echo "    $domain (IP6:$ip PORT:$port $proto)"
+                ip6tables -A OUTPUT -o eth0 -d $ip -p $proto --dport $port -j ACCEPT
+                echo "$ip $domain" >> /etc/hosts
+            done
         fi
     fi
-done
+done <<< "$remotes"
 
 echo "Allowing connections over VPN interface."
 iptables -A INPUT -i tun0 -j ACCEPT
