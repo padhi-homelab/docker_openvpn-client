@@ -8,8 +8,8 @@ ENV ENABLE_IPv6=0
 ENV FORWARDED_PORTS=""
 
 
-COPY start.sh                   /usr/local/bin/start-vpn
-COPY sockd.conf                 /
+COPY start.sh    /usr/local/bin/start-vpn
+COPY sockd.conf  /
 
 COPY entrypoint-scripts \
      /etc/docker-entrypoint.d/99-extra-scripts
@@ -18,6 +18,7 @@ COPY entrypoint-scripts \
 RUN chmod +x /usr/local/bin/start-vpn \
              /etc/docker-entrypoint.d/99-extra-scripts/*.sh \
  && apk add --no-cache --update \
+            bash \
             bind-tools \
             dante-server \
             ip6tables \
