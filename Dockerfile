@@ -1,4 +1,4 @@
-FROM padhihomelab/alpine-base:3.20.1_0.19.0_0.2
+FROM padhihomelab/alpine-base:3.20.2_0.19.0_0.2
 
 
 ENV ENTRYPOINT_RUN_AS_ROOT=1
