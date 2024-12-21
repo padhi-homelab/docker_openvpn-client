@@ -1,10 +1,11 @@
-FROM padhihomelab/alpine-base:3.20.2_0.19.0_0.2
+FROM padhihomelab/alpine-base:3.21.0_0.19.0_0.2
 
 
 ENV ENTRYPOINT_RUN_AS_ROOT=1
 
 ENV CONFIG_FILE_NAME="client.conf"
 ENV ENABLE_IPv6=0
+ENV ENABLE_SOCKS_PROXY=1
 ENV FORWARDED_PORTS=""
 
 
@@ -22,7 +23,7 @@ RUN chmod +x /usr/local/bin/start-vpn \
             bind-tools \
             dante-server \
             ip6tables \
-            openvpn=2.6.11-r0
+            openvpn=2.6.12-r1
 
 
 VOLUME [ "/config" ]

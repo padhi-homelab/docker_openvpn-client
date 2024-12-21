@@ -51,21 +51,21 @@ while IFS= read -r line ; do
     proto=${remote[2]:-${global_proto:-udp}}
 
     if ip route get $domain > /dev/null 2>&1; then
-        echo "    $domain PORT:$port $proto"
+        echo -e "    $domain\n      $proto:$port"
         iptables -A OUTPUT -o eth0 -d $domain -p $proto --dport $port -j ACCEPT
     elif [ $ENABLE_IPv6 -eq 1 ] && ip -6 route get $domain > /dev/null 2>&1; then
-        echo "    $domain PORT:$port $proto"
+        echo -e "    $domain\n      $proto:$port"
         ip6tables -A OUTPUT -o eth0 -d $domain -p $proto --dport $port -j ACCEPT
     else
         for ip in $(dig -4 +short "$domain"); do
-            echo "    $domain (IP4:$ip PORT:$port $proto)"
+            echo -e "    $domain\n      IP4: $ip\n      $proto:$port"
             iptables -A OUTPUT -o eth0 -d $ip -p $proto --dport $port -j ACCEPT
             echo "$ip $domain" >> /etc/hosts
         done
 
         if [ $ENABLE_IPv6 -eq 1 ]; then
             for ip in $(dig -6 +short "$domain"); do
-                echo "    $domain (IP6:$ip PORT:$port $proto)"
+                echo -e "    $domain\n      IP6: $ip\n      $proto:$port"
                 ip6tables -A OUTPUT -o eth0 -d $ip -p $proto --dport $port -j ACCEPT
                 echo "$ip $domain" >> /etc/hosts
             done

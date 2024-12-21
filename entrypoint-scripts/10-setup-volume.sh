@@ -1,9 +1,10 @@
 #!/bin/sh
 
 cp -r /config /internal-config
-mv /sockd.conf /internal-config/
+cp /sockd.conf /internal-config/
 
 sed -i \
+    -e 's/\r$//' \
     -e 's/#.*//' \
     -e 's/^up .*//' \
     -e 's/^down .*//' \
