@@ -1,17 +1,18 @@
 #!/bin/sh
 
 if [ "$ENABLE_IPv6" -eq 0 ]; then
-    EXTRA_FLAGS="--pull-filter ignore route-ipv6 --pull-filter ignore ifconfig-ipv6"
+    IPv6_FLAGS="--pull-filter ignore route-ipv6 --pull-filter ignore ifconfig-ipv6"
 fi
 
 ( openvpn --client \
           --auth-nocache \
           --auth-retry nointeract \
           --connect-retry-max 32 \
-          $EXTRA_FLAGS \
+          $IPv6_FLAGS \
           --up-restart \
           --cd /internal-config \
           --config "$CONFIG_FILE_NAME" \
+          $EXTRA_OPENVPN_FLAGS \
 ) &
 OPENVPN_PID=$!
 
