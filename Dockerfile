@@ -1,4 +1,4 @@
-FROM padhihomelab/alpine-base:3.21.0_0.19.0_0.2
+FROM padhihomelab/alpine-base:3.21.3_0.19.0_0.2
 
 
 ENV ENTRYPOINT_RUN_AS_ROOT=1
@@ -24,7 +24,7 @@ RUN chmod +x /usr/local/bin/start-vpn \
             bind-tools \
             dante-server \
             ip6tables \
-            openvpn=2.6.12-r1
+            openvpn=2.6.14-r0
 
 
 VOLUME [ "/config" ]

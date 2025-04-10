@@ -38,7 +38,8 @@ docker run --net=container:vpn_container <target_image>
 
 ### (Optional) SOCKS5 Proxy
 
-This image also contains a [Dante] server to optionally start
+This image also contains a [Dante] server to optionally start a SOCKS5 proxy
+that external clients may connect to.
 
 
 [Alpine Linux]: https://alpinelinux.org/
