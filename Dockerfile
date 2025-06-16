@@ -1,4 +1,4 @@
-FROM padhihomelab/alpine-base:3.21.3_0.19.0_0.2
+FROM padhihomelab/alpine-base:3.22.0_0.19.0_0.2
 
 
 ENV ENTRYPOINT_RUN_AS_ROOT=1
@@ -32,5 +32,5 @@ VOLUME [ "/config" ]
 CMD start-vpn
 
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=20s \
-        CMD ping -c 3 google.com || exit 1
+HEALTHCHECK --interval=15s --timeout=5s --start-period=15s \
+        CMD ping -I tun0 -c 3 google.com || exit 1
