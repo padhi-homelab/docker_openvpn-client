@@ -23,16 +23,16 @@ iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 echo "Allowing loopback connections."
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
-
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -A INPUT -i lo -j ACCEPT
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -A OUTPUT -o lo -j ACCEPT
+if [ "$ENABLE_IPv6" -eq 1 ] ; then
+    ip6tables -A INPUT -i lo -j ACCEPT
+    ip6tables -A OUTPUT -o lo -j ACCEPT
+fi
 
 echo "Allowing Docker network connections."
 local_subnet_4=$(ip -4 r | grep -v 'default via' | grep eth0 | tail -n 1 | awk '{ print $1 }')
 iptables -A INPUT -s $local_subnet_4 -j ACCEPT
 iptables -A OUTPUT -d $local_subnet_4 -j ACCEPT
-
-if [ $ENABLE_IPv6 -eq 1 ]; then
+if [ "$ENABLE_IPv6" -eq 1 ]; then
     local_subnet_6=$(ip -6 r | grep -v 'default via' | grep eth0 | tail -n 1 | awk '{ print $1 }')
     ip6tables -A INPUT -s $local_subnet_6 -j ACCEPT
     ip6tables -A OUTPUT -d $local_subnet_6 -j ACCEPT
@@ -76,9 +76,10 @@ done <<< "$remotes"
 echo "Allowing connections over VPN interface."
 iptables -A INPUT -i tun0 -j ACCEPT
 iptables -A OUTPUT -o tun0 -j ACCEPT
-
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -A INPUT -i tun0 -j ACCEPT
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -A OUTPUT -o tun0 -j ACCEPT
+if [ "$ENABLE_IPv6" -eq 1 ] ; then
+    ip6tables -A INPUT -i tun0 -j ACCEPT
+    ip6tables -A OUTPUT -o tun0 -j ACCEPT
+fi
 
 echo "Opening up forwarded ports."
 if [ ! -z $FORWARDED_PORTS ]; then
@@ -100,8 +101,10 @@ iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
 
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -P INPUT DROP
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -P OUTPUT DROP
-[ $ENABLE_IPv6 -eq 1 ] && ip6tables -P FORWARD DROP
+if [ "$ENABLE_IPv6" -eq 1 ] ; then
+    ip6tables -P INPUT DROP
+    ip6tables -P OUTPUT DROP
+    ip6tables -P FORWARD DROP
+fi
 
 echo "iptables rules created and routes configured!"
